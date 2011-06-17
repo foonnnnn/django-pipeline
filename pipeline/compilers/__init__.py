@@ -1,8 +1,6 @@
 import os
 import subprocess
 
-from django.core.files.base import ContentFile
-
 from pipeline.conf import settings
 from pipeline.storage import storage
 from pipeline.utils import to_class
@@ -43,7 +41,9 @@ class Compiler(object):
         return content
 
     def save_file(self, path, content):
-        return storage.save(path, ContentFile(content))
+        file = storage.open(path, 'wb')
+        file.write(content)
+        file.close()
 
 
 class CompilerBase(object):
@@ -57,7 +57,7 @@ class CompilerBase(object):
         raise NotImplementedError
 
     def save_file(self, path, content):
-        file = storage.open(path, 'wb')
+        file = storage.open(path, 'wb+')
         file.write(content)
         file.close()
         return path
